@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Noknok.Integration.Dynamics365", "Noknok.Integration.Dynamics365\Noknok.Integration.Dynamics365.csproj", "{3EE7789D-5045-4EEC-BA63-67FF4C7254F4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integrations", "Integrations", "{CF1A81C5-5262-4063-B35F-63F8506004AB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{C49A8C7F-A64F-4450-869F-8818FA806487}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Domain", "Common.Domain\Common.Domain.csproj", "{44875319-2087-46DA-BEEF-0BFCAC59913D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Catalog", "Catalog", "{4DC104C3-6737-402E-B5FD-F1A636407D58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catalog.Domain", "Catalog.Domain\Catalog.Domain.csproj", "{92C1DD5C-E35F-47EC-A5E1-9FC3AD781C85}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3EE7789D-5045-4EEC-BA63-67FF4C7254F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EE7789D-5045-4EEC-BA63-67FF4C7254F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EE7789D-5045-4EEC-BA63-67FF4C7254F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EE7789D-5045-4EEC-BA63-67FF4C7254F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44875319-2087-46DA-BEEF-0BFCAC59913D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44875319-2087-46DA-BEEF-0BFCAC59913D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44875319-2087-46DA-BEEF-0BFCAC59913D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44875319-2087-46DA-BEEF-0BFCAC59913D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92C1DD5C-E35F-47EC-A5E1-9FC3AD781C85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92C1DD5C-E35F-47EC-A5E1-9FC3AD781C85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92C1DD5C-E35F-47EC-A5E1-9FC3AD781C85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92C1DD5C-E35F-47EC-A5E1-9FC3AD781C85}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3EE7789D-5045-4EEC-BA63-67FF4C7254F4} = {CF1A81C5-5262-4063-B35F-63F8506004AB}
+		{44875319-2087-46DA-BEEF-0BFCAC59913D} = {C49A8C7F-A64F-4450-869F-8818FA806487}
+		{92C1DD5C-E35F-47EC-A5E1-9FC3AD781C85} = {4DC104C3-6737-402E-B5FD-F1A636407D58}
+	EndGlobalSection
+EndGlobal
