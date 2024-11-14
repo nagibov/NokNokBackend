@@ -1,5 +1,8 @@
-namespace Noknok.Integration.Dynamics365.Models;
 using Catalog.Domain.Dtos;
+using Catalog.Domain.Enums;
+using Noknok.Integration.Dynamics365.Settings;
+
+namespace Noknok.Integration.Dynamics365.Models;
 
 public class ProductResponse
 {
@@ -12,7 +15,7 @@ public class ProductResponse
     public string? ReferenceItemId { get; set; }
     public string? ProductType { get; set; }
     public string? KDAppVariant { get; set; }
-    public double? SalesPrice { get; set; }
+    public double SalesPrice { get; set; }
     public int KDThreshold { get; set; } = 0;  
     public int ProductVolume { get; set; } = 0;  
     public string? SalesSalesTaxItemGroupCode { get; set; }
@@ -30,76 +33,63 @@ public class ProductResponse
     public int? NkPreparationTime { get; set; } = 0;  
     public string? NkIsDonation { get; set; }
 
-    public MarketProductItemDto ToProductItemDto(
-        dynamic config, 
-        dynamic appConfig, 
+    public ProductItemDto ToProductItemDto(
+        Dynamics365IntegratorSettings config, 
         Dictionary<string, string> marketCategoriesMap,
         Dictionary<string, List<string>> barcodesMap)
     {
-        var marketProductItem = new MarketProductItemDto();
-        marketProductItem.IdThirdParty = config.IdThirdParty;
-        marketProductItem.IdTenant = config.IdTenant;
-        marketProductItem.ThirdPartyUid = config.ThirdPartyUid;
-        marketProductItem.TenantUid = config.TenantUid;
-        marketProductItem.OperationUid = config.OperationUid;
-        marketProductItem.BrandName = this.KDAPPBrand;
-        marketProductItem.IdOperation = config.IdOperation;
-        marketProductItem.Label = this.KDAppDesc;
-        marketProductItem.Description = this.KDAppVariant;
-        marketProductItem.CurrencyCode = this.CurrencyCode;
-
-        // TODO: Apply condition for PromotionalItem when it's ready on the ERP (Uncomment and implement the condition)
-
-        if (this.NkPromotionalPrice != null && this.NkPromotionalPrice > 0.0)
-            marketProductItem.Price = this.NkPromotionalPrice;
-        else
-            marketProductItem.Price = this.SalesPrice;
-
-        marketProductItem.StockThreshold = this.KDThreshold;
-        marketProductItem.WhishDenomiationId = this.ExternalItemId;
-        marketProductItem.IsChristmasDonationItem = this.ProductGroupId?.ToUpper() == "DON ITEMS";
-        marketProductItem.IsGiftVoucherItem = this.NKGiftItems?.ToUpper() == "YES";
-
-        marketProductItem.IsVirtualItem = marketProductItem.IsGiftVoucherItem ?? (this.NkDigitalItem?.ToUpper() == "YES");
-
-        // Since every gift voucher is stored locally in stock, we'll forcefully set property to isLocal = true
-        marketProductItem.IsLocalItem = marketProductItem.IsGiftVoucherItem ?? (this.NkItemLocalization?.ToUpper() == "LOCAL");
-        marketProductItem.ItemPreparationTime = this.NkPreparationTime;
-        marketProductItem.IsBCAMDonationItem = this.NkIsDonation?.ToUpper() == "YES";
-
-        if (this.ProductType != null)
+        var marketProductItem = new ProductItemDto
         {
-            if (this.ProductType.Equals("ITEM", StringComparison.OrdinalIgnoreCase))
-                marketProductItem.ItemType = ItemType.Product;
-            else if (this.ProductType.Equals("SERVICE", StringComparison.OrdinalIgnoreCase) && marketProductItem.IsVirtualItem == false)
+            IdThirdParty = config.ThirdPartyId,
+            TenantId = config.TenantId,
+            ThirdPartyUid = config.ThirdPartyUid,
+            TenantUid = config.TenantUid,
+            OperationUid = config.OperationUid,
+            OperationId = config.OperationId,
+            Label = KDAppDesc,
+            Description = KDAppVariant,
+            BrandId = KDAPPBrand,
+            // TODO: Apply condition for PromotionalItem when it's ready on the ERP (Uncomment and implement the condition)
+            Price = NkPromotionalPrice is > 0.0 ? 
+                NkPromotionalPrice.Value : SalesPrice,
+            IsVirtualItem = NkDigitalItem?.Equals("YES", StringComparison.OrdinalIgnoreCase) ?? false,
+            // Since every gift voucher is stored locally in stock, we'll forcefully set property to isLocal = true
+            IsLocalItem = NkItemLocalization?.Equals("LOCAL", StringComparison.OrdinalIgnoreCase) ?? false,
+            DefaultProductCharacteristics =
             {
-                marketProductItem.ItemType = ItemType.Service;
+                ItemPreparationTime = NkPreparationTime
             }
+        };
+        
+        if (ProductType != null)
+        {
+            if (ProductType.Equals("ITEM", StringComparison.OrdinalIgnoreCase))
+                marketProductItem.ItemType = ItemType.Product;
+            else if (ProductType.Equals("SERVICE", StringComparison.OrdinalIgnoreCase) && marketProductItem.IsVirtualItem == false)
+                marketProductItem.ItemType = ItemType.Service;
         }
+        
+        marketProductItem.DefaultProductCharacteristics.Size = ProductVolume;
+        marketProductItem.VatFree = !SalesSalesTaxItemGroupCode?.Equals("ISTG", StringComparison.OrdinalIgnoreCase) ?? true;
+        marketProductItem.LegacyId = ItemNumber;
+        marketProductItem.LegacyProductNumber = ProductNumber;
+        marketProductItem.IsPublished = SHowOnApp != null && SHowOnApp.Equals("YES", StringComparison.OrdinalIgnoreCase);
+        marketProductItem.Category = marketCategoriesMap[ProductNumber];
 
-        double? defaultProductVatPercent = appConfig.OperationConfig?[config.OperationUid]?.DefaultProductVatPercent;
-
-        marketProductItem.Size = this.ProductVolume;
-        marketProductItem.VatPercent = (this.SalesSalesTaxItemGroupCode == "ISTG") ? defaultProductVatPercent : 0.0;
-        marketProductItem.LegacyId = this.ItemNumber;
-        marketProductItem.LegacyProductNumber = this.ProductNumber;
-        marketProductItem.IsPublished = this.SHowOnApp != null && this.SHowOnApp.Equals("YES", StringComparison.OrdinalIgnoreCase);
-        marketProductItem.Category = marketCategoriesMap[this.ProductNumber];
-
-        var barcodesList = barcodesMap[this.ItemNumber];
+        var barcodesList = barcodesMap[ItemNumber];
         if (barcodesList is { Count: > 0 })
         {
             marketProductItem.Sku = barcodesList[0];
             marketProductItem.Barcodes = barcodesList.Count == 1 ? null : barcodesList;
         }
 
-        var promoTag = string.IsNullOrEmpty(this.KDPromotionalTag) ? null : this.KDPromotionalTag;
+        var promoTag = string.IsNullOrEmpty(KDPromotionalTag) ? null : KDPromotionalTag;
         marketProductItem.PromoTag = promoTag;
 
-        marketProductItem.ReferenceSku = this.ReferenceItemId;
-        marketProductItem.NeverRecommend = this.KDRecommended != null && this.KDRecommended.Equals("YES", StringComparison.OrdinalIgnoreCase);
+        marketProductItem.ReferenceSku = ReferenceItemId;
+        marketProductItem.NeverRecommend = KDRecommended != null && KDRecommended.Equals("YES", StringComparison.OrdinalIgnoreCase);
 
-        marketProductItem.IsBag = this.NkBags?.ToUpper() == "YES";
+        marketProductItem.DefaultProductCharacteristics.PackagingType = NkBags is not null && NkBags.Equals("YES", StringComparison.OrdinalIgnoreCase) ? "BAG" : "";
         return marketProductItem;
     }
 }

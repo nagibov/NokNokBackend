@@ -7,8 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Catalog.DataLayer.MongoDB\Catalog.DataLayer.MongoDB.csproj" />
       <ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
       <ProjectReference Include="..\Common.Domain\Common.Domain.csproj" />
+      <ProjectReference Include="..\Noknok.Integration.Domain\Noknok.Integration.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Identity.Client" Version="4.66.2" />
     </ItemGroup>
 
 </Project>
