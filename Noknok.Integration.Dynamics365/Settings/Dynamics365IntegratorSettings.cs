@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using Microsoft.Identity.Client;
+using Noknok.Integration.Domain.Interfaces;
 
 namespace Noknok.Integration.Dynamics365.Settings;
 

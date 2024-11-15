@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integrations.Tests", "Integ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Noknok.Integration.Domain", "Noknok.Integration.Domain\Noknok.Integration.Domain.csproj", "{E9F8AD9E-D98B-43F9-A3EC-A3E2DA126F3D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.ExceptionHandling", "Common.ExceptionHandling\Common.ExceptionHandling.csproj", "{E58308E5-75A1-40E3-8737-A09A4CE084C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +56,10 @@ Global
 		{E9F8AD9E-D98B-43F9-A3EC-A3E2DA126F3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9F8AD9E-D98B-43F9-A3EC-A3E2DA126F3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9F8AD9E-D98B-43F9-A3EC-A3E2DA126F3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E58308E5-75A1-40E3-8737-A09A4CE084C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E58308E5-75A1-40E3-8737-A09A4CE084C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E58308E5-75A1-40E3-8737-A09A4CE084C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E58308E5-75A1-40E3-8737-A09A4CE084C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3EE7789D-5045-4EEC-BA63-67FF4C7254F4} = {CF1A81C5-5262-4063-B35F-63F8506004AB}
@@ -63,5 +69,6 @@ Global
 		{8C140BEB-6DC9-4403-95A6-34DEC019EE4F} = {4DC104C3-6737-402E-B5FD-F1A636407D58}
 		{A7FE0B41-3798-434F-AAF4-A7D5A51B71BD} = {CF1A81C5-5262-4063-B35F-63F8506004AB}
 		{E9F8AD9E-D98B-43F9-A3EC-A3E2DA126F3D} = {CF1A81C5-5262-4063-B35F-63F8506004AB}
+		{E58308E5-75A1-40E3-8737-A09A4CE084C6} = {C49A8C7F-A64F-4450-869F-8818FA806487}
 	EndGlobalSection
 EndGlobal

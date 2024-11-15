@@ -1,3 +1,4 @@
+using Catalog.DataLayer.MongoDB.Configurations;
 using Catalog.DataLayer.MongoDB.Profiles;
 using Catalog.DataLayer.MongoDB.Repositories;
 using Catalog.Domain.Interfaces.Repositories;
@@ -12,6 +13,8 @@ public static class DependencyInjection
     {
         services.AddAutoMapper(cfg => cfg.AddProfile<DtoToEntityMapper>());
         services.AddScoped<IProductRepository, ProductRepository>();
+        
+        services.Configure<MongoDbConfiguration>(configuration.GetSection(nameof(MongoDbConfiguration)));
 
         return services;
     }

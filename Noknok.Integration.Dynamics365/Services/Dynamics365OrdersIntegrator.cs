@@ -5,6 +5,7 @@ using Catalog.Domain.Interfaces.Repositories;
 using Common.Domain.Api;
 using Common.Domain.Extensions;
 using Common.Domain.Utils;
+using Microsoft.Extensions.Options;
 using Noknok.Integration.Domain.Interfaces;
 using Noknok.Integration.Dynamics365.Models;
 using Noknok.Integration.Dynamics365.Settings;
@@ -12,45 +13,45 @@ using Noknok.Integration.Dynamics365.Settings;
 namespace Noknok.Integration.Dynamics365.Services;
 
 internal partial class Dynamics365Integrator(
-    Dynamics365IntegratorSettings integrationSettings,
-    IProductRepository productRepository) : IIntegrationHandler
+    IProductRepository productRepository) : IIntegrationHandler<Dynamics365IntegratorSettings>
 {
-    public async Task MigrateProductDataAsync()
+    public async Task MigrateProductDataAsync(Dynamics365IntegratorSettings integrationSettings)
     {
-        var categoriesResponse = await GetCategoriesAsync();
+        var categoriesResponse = await GetCategoriesAsync(integrationSettings);
         var marketCategoriesMap = new Dictionary<string, string>();
         while (categoriesResponse is { Succeeded: true, Data: not null })
         {
             marketCategoriesMap.AddRange(categoriesResponse.Data
                 .Value.ToDictionary(item => item.ProductNumber, item => item.ProductCategoryName));
             if (string.IsNullOrEmpty(categoriesResponse.Data.OdataNextLink)) break;
-            categoriesResponse = await GetCategoriesAsync(categoriesResponse.Data.OdataNextLink);
+            categoriesResponse = await GetCategoriesAsync(integrationSettings, categoriesResponse.Data.OdataNextLink);
         }
         
-        var barcodesResponse = await GetBarcodesAsync();
+        var barcodesResponse = await GetBarcodesAsync(integrationSettings);
         var barcodes = new List<BarcodeResponse>();
         while (barcodesResponse is { Succeeded: true, Data: not null })
         {
             barcodes.AddRange(barcodesResponse.Data.Value);
             if(string.IsNullOrEmpty(barcodesResponse.Data.OdataNextLink)) break;
-            barcodesResponse = await GetBarcodesAsync(barcodesResponse.Data.OdataNextLink);
+            barcodesResponse = await GetBarcodesAsync(integrationSettings, barcodesResponse.Data.OdataNextLink);
         }
 
         var barcodesMap = 
             barcodes.GroupBy(b => b.ItemNumber)
                 .ToDictionary(grouping => grouping.Key ?? string.Empty, grouping => grouping.Select(b => b.Barcode ?? string.Empty).ToList());
 
-        var productsResponse = await GetProductsAsync();
+        var productsResponse = await GetProductsAsync(integrationSettings);
         var result = new List<ProductItemDto>();
         while (productsResponse is { Succeeded: true, Data: not null })
         {
             result.AddRange(productsResponse.Data.Value
                 .Select(i => i.ToProductItemDto(integrationSettings, marketCategoriesMap, barcodesMap)));
+            productsResponse = await GetProductsAsync(integrationSettings, productsResponse.Data.OdataNextLink);
         }
         await productRepository.InsertBulkAsync(result);
     }
 
-    private async Task<ApiResult<ODataResponse<CategoryResponse>>> GetCategoriesAsync(string? url = null)
+    private async Task<ApiResult<ODataResponse<CategoryResponse>>> GetCategoriesAsync(Dynamics365IntegratorSettings integrationSettings, string? url = null)
     {
         var httpClient = await integrationSettings.GenerateHttpClient();
         var apiRoute = url ?? integrationSettings.CategoriesUrl;
@@ -64,7 +65,7 @@ internal partial class Dynamics365Integrator(
         };
     }
 
-    private async Task<ApiResult<ODataResponse<BarcodeResponse>>> GetBarcodesAsync(string? url = null)
+    private async Task<ApiResult<ODataResponse<BarcodeResponse>>> GetBarcodesAsync(Dynamics365IntegratorSettings integrationSettings, string? url = null)
     {
         var httpClient = await integrationSettings.GenerateHttpClient();
         var apiRoute = url ?? integrationSettings.BarcodeUrl;
@@ -78,7 +79,7 @@ internal partial class Dynamics365Integrator(
         };
     }
 
-    private async Task<ApiResult<ODataResponse<ProductResponse>>> GetProductsAsync(string? url = null)
+    private async Task<ApiResult<ODataResponse<ProductResponse>>> GetProductsAsync(Dynamics365IntegratorSettings integrationSettings, string? url = null)
     {
         var httpClient = await integrationSettings.GenerateHttpClient();
         var apiRoute = url ?? integrationSettings.ItemsUrl;

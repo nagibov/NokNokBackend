@@ -1,6 +1,7 @@
 namespace Noknok.Integration.Domain.Interfaces;
 
-public interface IIntegrationHandler
+public interface IIntegrationHandler<in TSettings> where TSettings : class
 {
-    Task MigrateProductDataAsync();
+    Task MigrateProductDataAsync(TSettings settings);
+    Task MigrateInventoryDataAsync(TSettings settings);
 }
